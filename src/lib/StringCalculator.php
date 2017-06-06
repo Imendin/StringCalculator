@@ -9,9 +9,12 @@
             if(strpos($numbers, "//") !== false){
                 //separuje z textu separátor
                 $saveNums = explode("\n", $numbers);
+                //pokud je obsažena závorka na delší separátory
                 if (strpos($saveNums[0], "[") !== false){
+                    //rozdelení separátorů
                     $saveNums = explode("[", $saveNums[0]); 
                     foreach($saveNums as $sav){
+                        //odtranění ze separátorů zakončující závorku
                         $sep[] = str_replace("]", "", $sav);
                     }
                     //odendá z textu nastavení separátoru
@@ -22,9 +25,11 @@
                     $numbers = str_replace(("//" . $sep[0] . "\n"), "", $numbers);
                 }
             }
+            //pokud se předtím nenastavil
             if($sep == array())
                 $sep[0] = ",";
             $saveNums = $numbers;
+            //práce s jednotlivými separátory
             foreach($sep as $separ){
                 //vyjímka pro dva a více rozdělovačů za sebou
                 if(strpos($numbers, $separ."\n") !== false || strpos($numbers, "\n".$separ) !== false || strpos($numbers, "\n\n") !== false || strpos($numbers, $separ . $separ) !== false)
@@ -45,6 +50,7 @@
                     } 
                     $negace .= $num . ", "; 
                 } 
+                //pokud je větší než 1000 tak se smaže
                 if($num > 1000){
                    unset($saveNums[$number]);
                 }
@@ -62,10 +68,11 @@
                 return $result;
             }
         }
-
+        //speciální funkce na práci se separátory
         private function separators($sep, $one = false)
         {
             $result = "";
+            //pokud je jeden nebo více
             if(!$one){
                 foreach($sep as $separ){
                     $result .= "[" . $separ . "]";
