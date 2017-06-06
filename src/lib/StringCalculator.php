@@ -70,7 +70,7 @@
             }
         }
         //speciální funkce na práci se separátory
-        private function separators($sep, $one = false)
+        private function Separators($sep, $one = false)
         {
             $result = "";
             //pokud je jeden nebo více
