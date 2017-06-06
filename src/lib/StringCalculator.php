@@ -3,22 +3,38 @@
         public function Add(string $numbers)
         {
             $result = "0";
-            $sep = ",";
+            $sep = array();
             $negace = "";
             //pokud v textu je //
-            if(($pos = strpos($numbers, "//")) !== false){
+            if(strpos($numbers, "//") !== false){
                 //separuje z textu separátor
                 $saveNums = explode("\n", $numbers);
-                $sep = substr($saveNums[0], 2, strlen($saveNums[0]) - 2);
-                //odendá z textu nastavení separátoru
-                $numbers = str_replace(("//" . $sep . "\n"), "", $numbers);
+                if (strpos($saveNums[0], "[") !== false){
+                    $saveNums = explode("[", $saveNums[0]); 
+                    foreach($saveNums as $sav){
+                        $sep[] = str_replace("]", "", $sav);
+                    }
+                    //odendá z textu nastavení separátoru
+                    $numbers = str_replace(("//" . $this->separators($sep) . "\n"), "", $numbers);
+                }else{
+                    $sep[0] = substr($saveNums[0], 2, strlen($saveNums[0]) - 2);
+                    //odendá z textu nastavení separátoru
+                    $numbers = str_replace(("//" . $sep[0] . "\n"), "", $numbers);
+                }
             }
-            //vyjímka pro dva a více rozdělovačů za sebou
-            if(strpos($numbers, $sep."\n") !== false || strpos($numbers, "\n".$sep) !== false || strpos($numbers, "\n\n") !== false || strpos($numbers, $sep.$sep) !== false)
-                return 'not';
-            //nahradí čárky řádkami a následně rozdělí jednotlivá čísla
-            $saveNums = implode("\n",explode($sep, $numbers));
+            if($sep == array())
+                $sep[0] = ",";
+            $saveNums = $numbers;
+            foreach($sep as $separ){
+                //vyjímka pro dva a více rozdělovačů za sebou
+                if(strpos($numbers, $separ."\n") !== false || strpos($numbers, "\n".$separ) !== false || strpos($numbers, "\n\n") !== false || strpos($numbers, $separ . $separ) !== false)
+                    return 'not';
+                //nahradí čárky řádkami
+                $saveNums = implode("\n",explode($separ, $saveNums));
+            }
+            //rozdělí jednotlivá čísla
             $saveNums = explode("\n", $saveNums);
+            $number = 0;
             //kontrola negace
             foreach($saveNums as $num){
                 //pokud je záporné
@@ -29,6 +45,10 @@
                     } 
                     $negace .= $num . ", "; 
                 } 
+                if($num > 1000){
+                   unset($saveNums[$number]);
+                }
+                $number ++;
             }
             if($result === "0"){
                 //pokud lze sečíst jednotlivé čísla tak to udělá
@@ -41,6 +61,21 @@
                 }
                 return $result;
             }
+        }
+
+        private function separators($sep, $one = false)
+        {
+            $result = "";
+            if(!$one){
+                foreach($sep as $separ){
+                    $result .= "[" . $separ . "]";
+                }
+            }else{
+                foreach($sep as $separ){
+                    $result .= $separ;
+                } 
+            }
+            return $result;
         }
     }
 ?>

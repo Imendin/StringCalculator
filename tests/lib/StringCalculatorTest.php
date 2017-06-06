@@ -31,10 +31,19 @@ class StringCalculatorTest extends TestCase{
     {
         $this->assertEquals(6, $this->stringCalculator->Add("//;\n1;2\n3"), "Chyba scitani: 1 + 2 + 3 != 6"); 
     }
-     public function testAddNegace()
+    public function testAddNegace()
     {
         $this->assertEquals("negatives not allowed ", $this->stringCalculator->Add("1,2\n-3"), "Chyba scitani: 1 + 2 + (-3) != negatives not allowed ");
         $this->assertEquals("negatives not allowed -1, -3, ", $this->stringCalculator->Add("-1,2\n-3"), "Chyba scitani: (-1) + 2 + (-3) != negatives not allowed -1, -3, "); 
+    }
+    public function testAddLongAndMoreSepar()
+    {
+        $this->assertEquals(6, $this->stringCalculator->Add("//[***]\n1***2\n3"), "Chyba scitani: 1 + 2 + 3 != 6 ");
+        $this->assertEquals(8, $this->stringCalculator->Add("//[***][--]\n1***2\n3--2"), "Chyba scitani: 1 + 2 + 3 + 2 != 8 ");
+    }
+    public function testAddBiggest1000()
+    {
+        $this->assertEquals(6, $this->stringCalculator->Add("1,2\n3,1001"), "Chyba scitani: 1 + 2 + 3 )+ 1001( != 6 ");
     }
 }
 ?>
