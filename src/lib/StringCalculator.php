@@ -17,9 +17,10 @@
                         //odtranění ze separátorů zakončující závorku
                         $sep[] = str_replace("]", "", $sav);
                     }
-                    //odendá z textu nastavení separátoru
+                    //odendá z textu nastavené separátory
                     $numbers = str_replace(("//" . $this->separators($sep) . "\n"), "", $numbers);
                 }else{
+                    //jen jeden separátor bez závorek
                     $sep[0] = substr($saveNums[0], 2, strlen($saveNums[0]) - 2);
                     //odendá z textu nastavení separátoru
                     $numbers = str_replace(("//" . $sep[0] . "\n"), "", $numbers);
