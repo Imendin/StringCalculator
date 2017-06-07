@@ -1,49 +1,52 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-require '.\src\lib\StringCalculator.php';
 
 class StringCalculatorTest extends TestCase{
+
+    public function testSumNumbers()
+    {
+        $this->assertSum(0, "");
+        $this->assertSum(1, "1");
+        $this->assertSum(3, "1,2");
+    }
+    public function testSumNumbersAmount()
+    {
+        $this->assertSum(6, "1,2,3");
+    }
+    public function testSumNumbersLine()
+    {
+        $this->assertSum(6, "1,2\n3");
+        $this->assertSum('not', "1,\n");
+    }
+    public function testSumNumbersSep()
+    {
+        $this->assertSum(6, "//;\n1;2\n3");
+    }
+    public function testSumNumbersLongAndMoreSepar()
+    {
+        $this->assertSum(6, "//[***]\n1***2\n3");
+        $this->assertSum(8, "//[***][--]\n1***2\n3--2");
+    }
+    public function testSumNumbersBiggest1000()
+    {
+        $this->assertSum(6, "1,2\n3,1001");
+    }
     
-    private $stringCalculator;
-
-    protected function setUp()
+    public function testException()
     {
-        $this->stringCalculator = new StringCalculator();
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(StringCalculator::sumNumbers("1,2\n-3"));
+        throw new Exception('Exception-message: ');
     }
-
-    public function testAdd()
+    public function testExceptionTwo()
     {
-        $this->assertEquals(0, $this->stringCalculator->Add(""), "Chyba scitani: 0 + 0 != 0");
-        $this->assertEquals(1, $this->stringCalculator->Add("1"), "Chyba scitani: 1 + 0 != 1");
-        $this->assertEquals(3, $this->stringCalculator->Add("1,2"), "Chyba scitani: 1 + 2 != 3");
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(StringCalculator::sumNumbers("-1,2\n-3"));
+        throw new Exception('Exception-message: ');
     }
-    public function testAddAmount()
-    {
-        $this->assertEquals(6, $this->stringCalculator->Add("1,2,3"), "Chyba scitani: 1 + 2 + 3 != 6");
-    }
-    public function testAddLine()
-    {
-        $this->assertEquals(6, $this->stringCalculator->Add("1,2\n3"), "Chyba scitani: 1 + 2 + 3 != 6");
-        $this->assertEquals('not', $this->stringCalculator->Add("1,\n"), 'Chyba scitani: 1,\n != not');
-    }
-    public function testAddSep()
-    {
-        $this->assertEquals(6, $this->stringCalculator->Add("//;\n1;2\n3"), "Chyba scitani: 1 + 2 + 3 != 6"); 
-    }
-    public function testAddNegace()
-    {
-        $this->assertEquals("negatives not allowed ", $this->stringCalculator->Add("1,2\n-3"), "Chyba scitani: 1 + 2 + (-3) != negatives not allowed ");
-        $this->assertEquals("negatives not allowed -1, -3, ", $this->stringCalculator->Add("-1,2\n-3"), "Chyba scitani: (-1) + 2 + (-3) != negatives not allowed -1, -3, "); 
-    }
-    public function testAddLongAndMoreSepar()
-    {
-        $this->assertEquals(6, $this->stringCalculator->Add("//[***]\n1***2\n3"), "Chyba scitani: 1 + 2 + 3 != 6 ");
-        $this->assertEquals(8, $this->stringCalculator->Add("//[***][--]\n1***2\n3--2"), "Chyba scitani: 1 + 2 + 3 + 2 != 8 ");
-    }
-    public function testAddBiggest1000()
-    {
-        $this->assertEquals(6, $this->stringCalculator->Add("1,2\n3,1001"), "Chyba scitani: 1 + 2 + 3 )+ 1001( != 6 ");
+    public function assertSum($need, $get){
+        $this->assertSame($need, StringCalculator::sumNumbers($get)); 
     }
 }
 ?>
