@@ -1,8 +1,16 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use Calculator\StringCalculator;
 
 class StringCalculatorTest extends TestCase{
+
+    protected $stringCalculator;
+
+    protected function setUp()
+    {
+        $this->stringCalculator = new StringCalculator();
+    }
 
     public function testSumNumbers()
     {
@@ -36,17 +44,15 @@ class StringCalculatorTest extends TestCase{
     public function testException()
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage(StringCalculator::sumNumbers("1,2\n-3"));
-        throw new Exception('Exception-message: ');
+        $this->stringCalculator->sumNumbers("1,2\n-3");
     }
     public function testExceptionTwo()
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage(StringCalculator::sumNumbers("-1,2\n-3"));
-        throw new Exception('Exception-message: ');
+        $this->stringCalculator->sumNumbers("-1,2\n-3");
     }
     public function assertSum($need, $get){
-        $this->assertSame($need, StringCalculator::sumNumbers($get)); 
+        $this->assertSame($need, $this->stringCalculator->sumNumbers($get)); 
     }
 }
 ?>

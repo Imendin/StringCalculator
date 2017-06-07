@@ -6,10 +6,6 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit070048de2c0a671e00b532e3bd236a61
 {
-    public static $files = array (
-        'bf5d64d1b15f5bc8b9fe03af09e7614a' => __DIR__ . '/../..' . '/src/lib/StringCalculator.php',
-    );
-
     public static $prefixLengthsPsr4 = array (
         'p' => 
         array (
@@ -23,6 +19,10 @@ class ComposerStaticInit070048de2c0a671e00b532e3bd236a61
         array (
             'Doctrine\\Instantiator\\' => 22,
             'DeepCopy\\' => 9,
+        ),
+        'C' => 
+        array (
+            'Calculator\\' => 11,
         ),
     );
 
@@ -44,6 +44,10 @@ class ComposerStaticInit070048de2c0a671e00b532e3bd236a61
         'DeepCopy\\' => 
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
+        ),
+        'Calculator\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
         ),
     );
 

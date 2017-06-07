@@ -3,6 +3,6 @@
         "phpunit/phpunit": "6.1"
     },
     "autoload": {
-        "files": ["src/lib/StringCalculator.php"]
+        "psr-4": {"Calculator\\": "src/"}
     }
 }
