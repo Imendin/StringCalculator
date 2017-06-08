@@ -5,76 +5,176 @@ namespace Calculator;
     class StringCalculator {
         public function sumNumbers(string $numbers)
         {
-            $result = "0";
-            $sep = array();
-            $negace = "";
+            $delimiter = new Delimiters();
+            $validator = new Validator();
 
-            //if exist this("//") in text
-            if(strpos($numbers, "//")  !== false){
-                $sep = $this->getDelimiters($numbers);
-            }
-            if($sep == array())
-                $sep[0] = ",";
-            $saveNums = $numbers;
+            $delimiter->setDelimiters($numbers);
+            $del = $delimiter->getDelimiters();
+            $numbers = $delimiter->removeDelimitersFromText($numbers);
+            $validator->validationsTwoDelimiters($numbers, $del);
 
-            //work with individually delimiters
-            foreach($sep as $separ){
-                //exception for two and more delimiters behind
-                if(strpos($numbers, $separ."\n") !== false || strpos($numbers, "\n".$separ) !== false || strpos($numbers, "\n\n") !== false || strpos($numbers, $separ . $separ) !== false) 
-                    return 'not';
-                $saveNums = implode("\n",explode($separ, $saveNums)); //replace commas with lines
-            }
-            $saveNums = explode("\n", $saveNums); //distribution numbers
-            $number = 0;
-
-            //negation control
-            $negativeNumbers = array_filter($saveNums, function($num){
-                return $num < 0;
-            });
-            if(count($negativeNumbers) > 0){
-                throw new \Exception(
-                    "negatives not allowed " . 
-                    (count($negativeNumbers) > 1 ? implode(", ", $negativeNumbers) : "")
-                );
-            }
-
-            //remove numbers bigger than 1000 control
-            $saveNums = array_filter($saveNums, function($num){
-                return $num <= 1000;
-            });
+            $numbers = $delimiter->partitionNumbersToArray($numbers);
+            $validator->validationsNegativeNumbers($numbers);
+            $numbers = $this->removeBiggerNumbers($numbers, 1000);
 
             //if can sum individually numbers then do it
-            if($result = array_sum($saveNums));
+            if($result = array_sum($numbers));
             return (int)$result;
         }
-
-        private function getDelimiters(&$numbers){
-            $saveNums = explode("\n", $numbers); //distributions from text delimiters      
-            if (strpos($saveNums[0], "[") !== false){
-                return $this->getListOfDelimiter($saveNums, $numbers);
-            }
-            $sep[0] = substr($saveNums[0], 2, strlen($saveNums[0]) - 2); //only one distributor without brackets
-            $numbers = str_replace(("//" . $sep[0] . "\n"), "", $numbers); //remove from text setting delimiters
-            return $sep;
-        }
-
-        private function getListOfDelimiter($saveNums, &$numbers){
-            $saveNums = explode("[", $saveNums[0]); //distribution of distributors
-            $sep = array(); 
-            foreach($saveNums as $sav){
-                $sep[] = str_replace("]", "", $sav); //remove from distributors ending bracket
-            }
-            $numbers = str_replace(("//" . $this->getAllDelimitersAsOneStringWithBrackets($sep) . "\n"), "", $numbers); //remove from text setting delimiters
-            return $sep;
-        }
-
-        private function getAllDelimitersAsOneStringWithBrackets($sep)
+        private function removeBiggerNumbers($setString, $max)
         {
-            $result = "";
-            foreach($sep as $separ){
-                $result .= "[" . $separ . "]";
-            }
-            return $result;
+            return array_filter($setString, function($num) use ($max){
+                return $num <= $max;
+            });
         }
     }
-?>
+    class Validator{
+        public function validationsTwoDelimiters($setString, $delimiters)
+        {
+            //change all delimiters to one type
+            $setString = str_replace(
+                array_merge($delimiters, array("\n")), 
+                ",", 
+                $setString
+            );
+            //exception for two and more delimiters behind
+            if(strpos($setString, ",,") !== false){                   
+                throw new \Exception("Two delimiters behind not allowed!");
+            }
+        }
+        public function validationsNegativeNumbers($setString)
+        {
+            //load only negative numbers to variable
+            $negativeNumbers = array_filter($setString, function($num){
+                return $num < 0;
+            });
+            //if count of negative numbers is biggest than 0 send exception
+            if(count($negativeNumbers) > 0){
+                throw new \Exception(
+                    "Negatives not allowed! " . 
+                    (count($negativeNumbers) > 1 ? 
+                        implode(", ", $negativeNumbers) : 
+                        ""
+                    )
+                );
+            }
+        }
+    }
+    class Delimiters{
+
+        private $delimiters;
+        private $settingText;
+        private $mustRemove = false;
+
+        public function __construct($delimiter = array(","))
+        {
+            $this->delimiters = $delimiter;
+        }
+        public function setDelimiters(
+            $setString, 
+            $delimiterBracketLeft = "[", 
+            $delimiterBracketRight = "]", 
+            $delimiterSettingStart = "//",
+            $delimeterSettingEnd = "\n"
+        ) {
+            if(strpos($setString,  $delimiterSettingStart)  !== false){    
+                $this->delimiters = $this->loadDelimiters(
+                    $setString, 
+                    $delimiterBracketLeft, 
+                    $delimiterBracketRight, 
+                    $delimeterSettingEnd
+                );
+                $this->mustRemove = true;
+            }
+        }
+        public function getDelimiters(){
+            return $this->delimiters;
+        }
+        public function removeDelimitersFromText(
+            $setString,  
+            $delimiterBracketLeft = "[", 
+            $delimiterBracketRight = "]", 
+            $delimiterSettingStart = "//",
+            $delimeterSettingEnd = "\n"
+        ) {
+            if(!$this->mustRemove){
+                return $setString;
+            }
+            if(count($this->delimiters) > 1){
+                return str_replace(
+                    (
+                        $delimiterSettingStart . 
+                        $this->getAllDelimitersAsOneStringWithBrackets(
+                            $delimiterBracketLeft, 
+                            $delimiterBracketRight
+                        ) . 
+                        $delimeterSettingEnd
+                    ), 
+                    "", 
+                    $setString
+                );
+            }
+            return str_replace(
+                (
+                    $delimiterSettingStart . 
+                    $this->delimiters[0] . 
+                    $delimeterSettingEnd
+                ), 
+                "", 
+                $setString
+            );
+        }
+        public function partitionNumbersToArray($setString, $delimiter = ",")
+        {
+            $setString = str_replace(
+                array_merge($this->delimiters, array("\n")), 
+                $delimiter, 
+                $setString
+            );
+            return explode($delimiter, $setString);
+        }
+        private function loadDelimiters(
+            $setString, 
+            $delimiterBracketLeft = "[", 
+            $delimiterBracketRight = "]", 
+            $delimeterSettingEnd = "\n"
+        ) {
+            $setString = explode($delimeterSettingEnd, $setString); //distributions from text delimiters  
+            if (strpos($setString[0], $delimiterBracketLeft) !== false){
+                return $this->makeListOfDelimiters(
+                    $setString[0], 
+                    $delimiterBracketLeft, 
+                    $delimiterBracketRight
+                );
+            }
+            return array(substr($setString[0], 2, strlen($setString[0]) - 2)); //only one distributor without brackets
+        }
+        private function makeListOfDelimiters( 
+            $setString, 
+            $delimiterBracketLeft = "[", 
+            $delimiterBracketRight = "]"
+        ) {
+            $setString = str_replace(
+                array($delimiterBracketLeft, 
+                $delimiterBracketRight), 
+                ",", 
+                $setString
+            ); //change all distributors to one distributor
+            $delimiters = explode(",", $setString); //distribution of distributors
+            return $delimiters;
+        }
+        private function getAllDelimitersAsOneStringWithBrackets( 
+            $delimiterBracketLeft = "[", 
+            $delimiterBracketRight = "]"
+        ) {
+            return implode("", array_filter(
+                $this->delimiters, 
+                function($delimiter) use (
+                    $delimiterBracketLeft, 
+                    $delimiterBracketRight
+                ){
+                    return $delimiterBracketLeft . $delimiter . $delimiterBracketRight;
+                }
+            ));
+        }
+    }

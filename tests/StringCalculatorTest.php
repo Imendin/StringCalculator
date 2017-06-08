@@ -25,7 +25,6 @@ class StringCalculatorTest extends TestCase{
     public function testSumNumbersLine()
     {
         $this->assertSum(6, "1,2\n3");
-        $this->assertSum('not', "1,\n");
     }
     public function testSumNumbersSep()
     {
@@ -41,18 +40,20 @@ class StringCalculatorTest extends TestCase{
         $this->assertSum(6, "1,2\n3,1001");
     }
     
-    public function testException()
+    public function testNegative()
     {
         $this->expectException(Exception::class);
         $this->stringCalculator->sumNumbers("1,2\n-3");
-    }
-    public function testExceptionTwo()
-    {
         $this->expectException(Exception::class);
         $this->stringCalculator->sumNumbers("-1,2\n-3");
     }
+    public function testTwoDelimiters()
+    {
+        $this->expectException(Exception::class);
+        $this->stringCalculator->sumNumbers("1,\n");
+    }
+    
     public function assertSum($need, $get){
         $this->assertSame($need, $this->stringCalculator->sumNumbers($get)); 
     }
 }
-?>
